@@ -6,33 +6,39 @@ const isEmail = RegExp(
 
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.message == "load_complete") {
-    parseEmail();
+    scanForEmail();
+    setInterval(() => {
+      scanForEmail();
+    }, 5000);
   }
 });
 
-function parseEmail() {
+function scanForEmail() {
   $("*").each(function(key, value) {
     const elem = $(value);
     const text = elem.text();
     if (text.length > 0) {
       const email = text.replace(/<|>/g, "");
       if (isEmail.test(email)) {
-        elem
-          .click(function(e) {
-            copyToClipboard(e.target);
-            e.target.style.backgroundColor = "#008000";
-            setTimeout(() => {
-              e.target.style.backgroundColor = "";
-            }, 1000);
-          })
-          .hover(
-            function(e) {
-              e.target.style.backgroundColor = "#FFFF00";
-            },
-            function(e) {
-              e.target.style.backgroundColor = "";
-            }
-          );
+        if (!elem.hasClass("copy-email-extension")) {
+          elem.addClass("copy-email-extension");
+          elem
+            .click(function(e) {
+              copyToClipboard(e.target);
+              e.target.style.backgroundColor = "#008000";
+              setTimeout(() => {
+                e.target.style.backgroundColor = "";
+              }, 1000);
+            })
+            .hover(
+              function(e) {
+                e.target.style.backgroundColor = "#FFFF00";
+              },
+              function(e) {
+                e.target.style.backgroundColor = "";
+              }
+            );
+        }
       }
     }
   });
